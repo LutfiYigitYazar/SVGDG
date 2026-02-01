@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SÜRPRİZ</title>
+    <title>SÜRPRİZ!</title>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
@@ -18,15 +18,25 @@
         
         body { background-color: var(--bg); color: var(--text-color); font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; position: relative; -webkit-tap-highlight-color: transparent; }
         
-        /* KRİTİK DÜZELTME: Konfeti canvas'ı tıklamayı ASLA engellemesin */
-        canvas { pointer-events: none !important; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; }
+        /* --- DÜZELTME BURADA --- */
+        /* Konfeti Canvas'ı: Z-Index 20000 yapıldı (Görünmesi için) */
+        canvas:not(#scratch-canvas) { 
+            pointer-events: none !important; /* Tıklamayı engelleme */
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            z-index: 20000 !important; /* EN ÜSTTE GÖRÜNSÜN */
+        }
         
-        /* Kazı kazan kartının çizilebilir olması lazım, onu ÖZEL olarak açıyoruz */
+        /* Kazı kazan kartı */
         #scratch-canvas { 
             pointer-events: auto !important; 
             position: absolute !important; 
-            z-index: 60 !important; 
-            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1000 !important; 
+            top: 0; left: 0; 
+            touch-action: none; 
         }
 
         /* BALONLAR */
@@ -36,13 +46,11 @@
         @keyframes floatUp { 0% { transform: translateY(0) rotateZ(0deg); opacity: 0.9; } 50% { transform: translateY(-60vh) rotateZ(10deg); } 100% { transform: translateY(-110vh) rotateZ(-10deg); opacity: 0; } }
 
         /* MÜZİK PANELİ */
-        .music-container { position: fixed; top: 20px; right: 20px; width: 260px; z-index: 4000; font-family: 'Segoe UI', sans-serif; user-select: none; }
+        .music-container { position: fixed; top: 20px; right: 20px; width: 260px; z-index: 25000; font-family: 'Segoe UI', sans-serif; user-select: none; }
         .music-header { background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(12px); padding: 12px 18px; border-radius: 20px; color: white; display: flex; justify-content: space-between; align-items: center; cursor: pointer; box-shadow: 0 8px 25px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s ease; }
-        .music-header:hover { background: rgba(51, 65, 85, 0.95); transform: translateY(-2px); border-color: var(--primary); }
         .music-dropdown { list-style: none; padding: 5px; margin: 10px 0 0 0; background: rgba(30, 41, 59, 0.98); backdrop-filter: blur(15px); border-radius: 15px; overflow: hidden; max-height: 0; transition: max-height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s; opacity: 0; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); }
         .music-dropdown.open { max-height: 300px; opacity: 1; }
         .music-item { padding: 12px 15px; color: #cbd5e1; cursor: pointer; border-radius: 10px; font-size: 0.85rem; display: flex; align-items: center; gap: 10px; transition: 0.2s; margin-bottom: 2px; }
-        .music-item:hover { background: rgba(255, 255, 255, 0.1); color: white; padding-left: 20px; }
         .music-item.active { background: rgba(217, 70, 239, 0.2); color: var(--primary); font-weight: bold; }
         .music-icon-anim { animation: rotateMusic 4s linear infinite; display: inline-block; }
         .music-arrow { transition: 0.3s; font-size: 0.8rem; }
@@ -50,61 +58,35 @@
         @keyframes rotateMusic { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
         /* GALERİ */
-        .foto-sayfasi { display: none; padding: 40px 20px; min-height: 100vh; background-color: var(--dark-bg); animation: fadeIn 0.8s ease; position: relative; z-index: 10; }
-        .izgara { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 20px; margin: 0 auto 50px auto; max-width: 1200px; padding-top: 30px; position: relative; z-index: 10; }
-        
-        .foto-cerceve { background: white; padding: 12px; border-radius: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); cursor: pointer; text-align: center; width: 260px; position: relative; transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 20; }
+        .foto-sayfasi { display: none; padding: 40px 20px; min-height: 100vh; background-color: var(--dark-bg); animation: fadeIn 0.8s ease; }
+        .izgara { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 20px; margin: 0 auto 50px auto; max-width: 1200px; padding-top: 30px; }
+        .foto-cerceve { background: white; padding: 12px; border-radius: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); cursor: pointer; text-align: center; width: 260px; position: relative; transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
         .foto-cerceve:hover { transform: scale(1.1) rotate(0deg) !important; z-index: 999; box-shadow: 0 0 30px var(--primary); }
         .foto-cerceve img { width: 100%; height: 260px; object-fit: cover; pointer-events: none; border: 1px solid #eee; background: #eee; }
         
-        /* BUTONLAR - KESİN ÇÖZÜM İÇİN STİLLER */
+        /* BUTONLAR (Mobil Tıklama Garantili) */
         .buton { 
-            background: var(--primary); 
-            color: white; 
-            border: none; 
-            padding: 16px 35px; /* Mobilde daha kolay basılsın diye büyüttüm */
-            border-radius: 50px; 
-            cursor: pointer; 
-            font-weight: 700; 
-            font-size: 1.1rem; 
-            margin: 10px; 
-            transition: 0.3s; 
-            
-            /* EN KRİTİK KISIM: Z-INDEX MAXİMUM */
-            position: relative; 
-            z-index: 2147483647 !important; 
-            pointer-events: auto !important;
-            
-            box-shadow: 0 4px 15px rgba(217, 70, 239, 0.4); 
-            touch-action: manipulation; 
-            user-select: none;
-            -webkit-tap-highlight-color: rgba(255, 255, 255, 0.2);
+            background: var(--primary); color: white; border: none; padding: 16px 40px; border-radius: 50px; cursor: pointer; font-weight: 700; font-size: 1.1rem; margin: 15px 10px; transition: 0.2s; box-shadow: 0 4px 15px rgba(217, 70, 239, 0.4); 
+            position: relative; z-index: 3000 !important; pointer-events: auto !important; user-select: none; touch-action: manipulation;
         }
         .buton:active { transform: scale(0.95); }
-        .buton:hover { transform: scale(1.05); filter: brightness(1.1); box-shadow: 0 6px 25px rgba(217, 70, 239, 0.6); }
-        
-        .nav-butonlar { 
-            display: flex; 
-            justify-content: center; 
-            gap: 15px; 
-            padding-bottom: 80px; /* Mobilde alt barın altında kalmasın diye artırıldı */
-            position: relative; 
-            z-index: 2147483647 !important; 
-            pointer-events: auto !important;
-        }
+        .nav-butonlar { display: flex; justify-content: center; gap: 10px; padding-bottom: 100px; position: relative; z-index: 3000; }
 
         /* KAZI KAZAN */
-        .scratch-box { position: relative; width: 100%; max-width: 400px; height: 90px; margin: 25px auto; overflow: hidden; border-radius: 12px; z-index: 30; box-shadow: 0 5px 15px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); }
+        .scratch-box { position: relative; width: 100%; max-width: 400px; height: 90px; margin: 25px auto; overflow: hidden; border-radius: 12px; z-index: 900; box-shadow: 0 5px 15px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); }
         .hidden-msg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: var(--card-bg); }
         
-        /* ATAN KALP EFEKTİ - Dokunmayı Engelle */
-        .kalp-konteynir { position: relative; display: inline-block; margin-top: 20px; pointer-events: none; z-index: 20; }
+        /* ATAN KALP EFEKTİ */
+        .kalp-konteynir { position: relative; display: inline-block; margin-top: 20px; pointer-events: none; }
         .ana-kalp { font-size: 3.5rem; color: var(--primary); z-index: 100; position: relative; }
         .dalga { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: rgba(217, 70, 239, 0.5); font-size: 3rem; opacity: 0; animation: devDalga 6s forwards; pointer-events: none; }
         @keyframes devDalga { 0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; } 100% { transform: translate(-50%, -50%) scale(35); opacity: 0; } }
 
-        /* GERİ SAYIM SAYFASI */
-        #geri-sayim-sayfasi { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white; position: relative; transition: background 1s ease; z-index: 10; }
+        /* İÇERİK KONTEYNERLERİ */
+        .foto-sayfasi, #son-sayfa, #pasta-sayfasi, #hediye-sayfasi, #geri-sayim-sayfasi { position: relative; z-index: 200; }
+
+        /* GERİ SAYIM */
+        #geri-sayim-sayfasi { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white; transition: background 1s ease; }
         .tema-sabah { background: linear-gradient(180deg, #1e293b 0%, #334155 100%); }
         .tema-ogle { background: linear-gradient(180deg, #1e1b4b 0%, #7c3aed 100%); } 
         .tema-ikindi { background: linear-gradient(180deg, #1e1b4b 0%, #312e81 100%); }
@@ -112,7 +94,7 @@
         .tema-gece { background: linear-gradient(180deg, #020617 0%, #1e1b4b 100%); }
 
         /* PASTA */
-        .cake { position: relative; width: 250px; height: 200px; margin: 120px auto 50px auto; z-index: 20; }
+        .cake { position: relative; width: 250px; height: 200px; margin: 120px auto 50px auto; }
         .cake-layer { background: #f472b6; border-radius: 15px 15px 5px 5px; position: absolute; width: 100%; border-bottom: 4px solid #be185d; }
         .layer-bottom { height: 80px; bottom: 0; width: 250px; left: 0; }
         .layer-top { height: 60px; bottom: 80px; width: 200px; left: 25px; background: #ec4899; }
@@ -126,29 +108,26 @@
         @keyframes smokeUp { 0% { opacity: 0.8; transform: translate(-50%, 0) scale(1); } 100% { opacity: 0; transform: translate(-50%, -80px) scale(4); } }
 
         /* HEDİYE SİSTEMİ */
-        #hediye-sayfasi { background-color: var(--bg); min-height: 100vh; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; padding: 20px; text-align: center; position: relative; z-index: 10; }
-        .hediye-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 30px; margin: 40px auto; max-width: 800px; width: 90%; z-index: 20; position: relative; }
+        #hediye-sayfasi { background-color: var(--bg); min-height: 100vh; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; padding: 20px; text-align: center; }
+        .hediye-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 30px; margin: 40px auto; max-width: 800px; width: 90%; }
         .hediye-kutu { font-size: 6rem; cursor: pointer; transition: 0.3s; user-select: none; text-shadow: 0 0 20px rgba(217, 70, 239, 0.5); }
         .hediye-kutu:hover { transform: scale(1.1) rotate(5deg); text-shadow: 0 0 40px var(--primary); }
         .hediye-kutu.acildi { font-size: 1.2rem; background: white; color: #333; border-radius: 15px; padding: 20px; height: 150px; display: flex; align-items: center; justify-content: center; font-family: 'Caveat', cursive; font-weight: bold; box-shadow: 0 0 30px var(--primary); cursor: default; }
         .hediye-kutu.pasif { opacity: 0.3; pointer-events: none; filter: grayscale(100%); }
-        .hediye-kutu.acildi-pasif { font-size: 1rem; background: #eee; color: #555; opacity: 0.9; border-radius: 15px; padding: 20px; height: 150px; display: flex; align-items: center; justify-content: center; font-family: 'Caveat', cursive; font-weight: bold; pointer-events: none; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); filter: none; }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .hediye-kutu.acildi-pasif { font-size: 1rem; background: #cbd5e1; color: #475569; opacity: 0.9; border-radius: 15px; padding: 20px; height: 150px; display: flex; align-items: center; justify-content: center; font-family: 'Caveat', cursive; font-weight: bold; pointer-events: none; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); filter: none; }
 
         /* LIGHTBOX */
-        .lightbox-nav { position: absolute; top: 50%; transform: translateY(-50%); color: white; font-size: 4rem; cursor: pointer; padding: 10px 20px; user-select: none; z-index: 3001; transition: 0.3s; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
-        .lightbox-nav:hover { color: var(--primary); transform: translateY(-50%) scale(1.1); }
+        .lightbox-nav { position: absolute; top: 50%; transform: translateY(-50%); color: white; font-size: 4rem; cursor: pointer; padding: 10px 20px; user-select: none; z-index: 25001; }
         .lightbox-prev { left: 10px; }
         .lightbox-next { right: 10px; }
-        #buyukFoto { z-index: 3000; position:relative; cursor: zoom-out; }
+        #buyukFoto { z-index: 25000; position:relative; cursor: zoom-out; }
     </style>
 </head>
 <body onload="baslangicIslemleri()">
 
 <div id="balloonContainer" class="balloon-container"></div>
 
-<div id="lightbox" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:3000; justify-content:center; align-items:center;" onclick="closeLightbox(event)">
+<div id="lightbox" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:25000; justify-content:center; align-items:center;" onclick="closeLightbox(event)">
     <span id="btnPrev" class="lightbox-nav lightbox-prev" onclick="changePhoto(-1)">&#10094;</span>
     <img id="buyukFoto" src="" onclick="closeLightboxDirectly()" style="max-width:90%; max-height:90%; border: 5px solid white; box-shadow: 0 0 30px rgba(0,0,0,0.5);">
     <span id="btnNext" class="lightbox-nav lightbox-next" onclick="changePhoto(1)">&#10095;</span>
@@ -185,7 +164,7 @@
 
 <div id="sayfa-konteynir"></div>
 
-<div id="son-sayfa" style="min-height:100dvh; flex-direction: column; justify-content: center; align-items: center; text-align: center; background-color: var(--bg); display:none; padding: 40px 20px 100px 20px; position:relative; z-index:10;">
+<div id="son-sayfa" style="min-height:100vh; flex-direction: column; justify-content: center; align-items: center; text-align: center; background-color: var(--bg); display:none; padding: 40px 20px 100px 20px;">
     <h1 style="color: var(--primary); margin-bottom: 20px; font-family: 'Caveat', cursive; font-size: 3rem;">İyi Ki Doğdun! 🎂</h1>
     <div style="max-width: 850px; background: var(--card-bg); padding: 40px; border-radius: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.4); line-height: 1.8; color: var(--text-color); z-index: 50; position: relative; border: 1px solid rgba(255,255,255,0.1); font-size: 1.1rem; margin-bottom: 30px;">
         <p style="margin-bottom: 20px;">Canım arkadaşım, bugün somut olarak yanında olamıyorum ama en azından o sıcaklığı hissettirecek bir şey yapmak istedim. ✨</p>
@@ -208,9 +187,9 @@
     </div>
 </div>
 
-<div id="pasta-sayfasi" style="min-height:100vh; flex-direction: column; justify-content: center; align-items: center; display:none; background: var(--bg); position:relative; z-index:10;">
-    <div id="talimat-mesaji" style="font-family: 'Caveat', cursive; font-size: 2.5rem; color: #94a3b8; margin-bottom: 40px; position:relative; z-index:20;">🎂 Dilek tut ve dokunarak mumları söndür</div>
-    <div id="dilek-mesaji" style="font-family: 'Caveat', cursive; font-size: 4rem; color: var(--primary); opacity: 0; position: absolute; top: 100px; z-index:20;">✨ İYİ Kİ DOĞDUN! ✨</div>
+<div id="pasta-sayfasi" style="min-height:100vh; flex-direction: column; justify-content: center; align-items: center; display:none; background: var(--bg);">
+    <div id="talimat-mesaji" style="font-family: 'Caveat', cursive; font-size: 2.5rem; color: #94a3b8; margin-bottom: 40px;">🎂 Dilek tut ve dokunarak mumları söndür</div>
+    <div id="dilek-mesaji" style="font-family: 'Caveat', cursive; font-size: 4rem; color: var(--primary); opacity: 0; position: absolute; top: 100px;">✨ İYİ Kİ DOĞDUN! ✨</div>
     <div class="cake">
         <div class="cake-layer layer-bottom"><div class="icing-drip"></div></div>
         <div class="cake-layer layer-top"><div class="icing-drip"></div></div>
@@ -257,7 +236,7 @@
     const gizliHediyeSifresiAlt = "HEDIYE"; 
 
     // YENİ ANAHTAR: Sıfır başlangıç için
-    const STORAGE_KEY = "dogum_gunu_surprizi_final_v7";
+    const STORAGE_KEY = "dogum_gunu_surprizi_final_v10";
     
     const hediyeler = ["🍫 En sevdiğin çikolata", "☕ Kahve Ismarlama", "🎁 Garip bir hediye"];
 
@@ -353,7 +332,6 @@
             let imgs = "";
             for(let i=start; i<=end; i++) {
                 let rot = Math.floor(Math.random() * 20) - 10;
-                // NOT KISMI SİLİNDİ, FOTOĞRAF KORUNDU
                 imgs += `<div class="foto-cerceve" style="transform: rotate(${rot}deg)" onclick="fotoBuyut(this)"><img src="${i}.jpg"></div>`;
             }
             html += `<div id="sayfa${j}" class="foto-sayfasi"><h2 style="text-align:center; color:#eee; font-family:Caveat; font-size: 2.2rem;">${config.title}</h2><div class="izgara">${imgs}</div><div class="nav-butonlar"><button class="buton" style="background:#334155" onclick="sayfaDegistir('sayfa${j}', '${j==1?'geri-sayim-sayfasi':'sayfa'+(j-1)}')">← Geri</button><button class="buton" onclick="sayfaDegistir('sayfa${j}', '${next}')">${j==9?'Son Söz ❤️':'Devam Et →'}</button></div></div>`;
@@ -395,11 +373,29 @@
         window.scrollTo(0,0);
     }
 
+    // MUMLAR VE KONFETİ EFEKTİ
     function mumuSondur(el) {
         const alev = el.querySelector('.flame');
         if (alev && alev.style.display !== 'none') {
-            alev.style.display = 'none'; el.querySelector('.smoke').classList.add('smoke-animate'); sonenMumlar++;
-            if (sonenMumlar === 3) { document.getElementById('dilek-mesaji').style.opacity = '1'; confetti({ particleCount: 200, spread: 100 }); }
+            alev.style.display = 'none';
+            el.querySelector('.smoke').classList.add('smoke-animate');
+            sonenMumlar++;
+
+            // HER MUMDA UFAK BİR PATLAMA
+            confetti({
+                particleCount: 50,
+                spread: 60,
+                origin: { y: 0.7 },
+                zIndex: 99999 // KONFETİLERİN GÖRÜNMESİ İÇİN
+            });
+
+            // HEPSİ SÖNÜNCE BÜYÜK PATLAMA
+            if (sonenMumlar === 3) {
+                document.getElementById('dilek-mesaji').style.opacity = '1';
+                setTimeout(() => {
+                    confetti({ particleCount: 300, spread: 150, origin: { y: 0.6 }, zIndex: 99999 });
+                }, 300);
+            }
         }
     }
 
@@ -425,7 +421,7 @@
         localStorage.setItem(STORAGE_KEY, index);
 
         gorselGuncelle(index);
-        confetti({ particleCount: 150, spread: 100 });
+        confetti({ particleCount: 150, spread: 100, zIndex: 99999 });
     }
 
     function hediyeDurumunuKontrolEt() {
@@ -495,9 +491,9 @@
         
         let randomLeft;
         if(Math.random() < 0.5) {
-             randomLeft = Math.random() * 15; 
+             randomLeft = Math.random() * 15; // 0% ile 15% arası (Sol Kenar)
         } else {
-             randomLeft = 85 + Math.random() * 15; 
+             randomLeft = 85 + Math.random() * 15; // 85% ile 100% arası (Sağ Kenar)
         }
         b.style.left = randomLeft + 'vw';
         
