@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SÜRPRİZ</title>
+    <title>SÜRPRİZ!</title>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
@@ -18,6 +18,11 @@
         
         body { background-color: var(--bg); color: var(--text-color); font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; position: relative; }
         
+        /* ÖNEMLİ DÜZELTME: Konfeti canvas'ı tıklamayı engellemesin */
+        canvas { pointer-events: none !important; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; }
+        /* Kazı kazan kartının çizilebilir olması lazım, onu hariç tutuyoruz */
+        #scratch-canvas { pointer-events: auto !important; position: absolute; z-index: 5; }
+
         /* BALONLAR */
         .balloon-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; z-index: 1; }
         .balloon { position: absolute; bottom: -100px; width: 60px; height: 80px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; opacity: 0.8; animation: floatUp 12s ease-in-out infinite; box-shadow: inset -5px -5px 10px rgba(0,0,0,0.1); transition: transform 0.1s; pointer-events: auto; }
@@ -46,7 +51,7 @@
         .foto-cerceve:hover { transform: scale(1.1) rotate(0deg) !important; z-index: 999; box-shadow: 0 0 30px var(--primary); }
         .foto-cerceve img { width: 100%; height: 260px; object-fit: cover; pointer-events: none; border: 1px solid #eee; background: #eee; }
         
-        /* BUTONLAR - MOBİL DÜZELTMESİ (Z-INDEX ARTIRILDI) */
+        /* BUTONLAR - MOBİL DÜZELTMESİ (Z-INDEX 99999) */
         .buton { 
             background: var(--primary); 
             color: white; 
@@ -59,26 +64,27 @@
             margin: 10px; 
             transition: 0.3s; 
             position: relative; 
-            z-index: 2000 !important; /* En üste taşındı */
+            z-index: 99999 !important; /* Her şeyin üstünde */
             box-shadow: 0 4px 15px rgba(217, 70, 239, 0.4); 
-            touch-action: manipulation; /* Mobil dokunma iyileştirmesi */
+            touch-action: manipulation; /* Dokunmatik iyileştirmesi */
+            -webkit-tap-highlight-color: transparent;
         }
         .buton:hover { transform: scale(1.05); filter: brightness(1.1); box-shadow: 0 6px 25px rgba(217, 70, 239, 0.6); }
+        
         .nav-butonlar { 
             display: flex; 
             justify-content: center; 
             gap: 15px; 
-            padding-bottom: 60px; /* Alt boşluk artırıldı */
+            padding-bottom: 60px; 
             position: relative; 
-            z-index: 2000 !important; 
+            z-index: 99999 !important; /* Konteyner de en üstte */
         }
 
         /* KAZI KAZAN */
         .scratch-box { position: relative; width: 100%; max-width: 400px; height: 90px; margin: 25px auto; overflow: hidden; border-radius: 12px; z-index: 30; box-shadow: 0 5px 15px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); }
-        #scratch-canvas { position: absolute; top: 0; left: 0; z-index: 5; touch-action: none; cursor: crosshair; }
         .hidden-msg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: var(--card-bg); }
         
-        /* ATAN KALP EFEKTİ (Pointer Events Kapatıldı) */
+        /* ATAN KALP EFEKTİ - Dokunmayı Engelle */
         .kalp-konteynir { position: relative; display: inline-block; margin-top: 20px; pointer-events: none; z-index: 20; }
         .ana-kalp { font-size: 3.5rem; color: var(--primary); z-index: 100; position: relative; }
         .dalga { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: rgba(217, 70, 239, 0.5); font-size: 3rem; opacity: 0; animation: devDalga 6s forwards; pointer-events: none; }
@@ -474,11 +480,12 @@
         const b = document.createElement('div'); b.className = 'balloon';
         b.style.backgroundColor = ['#d946ef', '#8b5cf6', '#3b82f6', '#f472b6'][Math.floor(Math.random()*4)];
         
+        // BALONLARI SADECE SAĞ VE SOL KENARLARDAN ÇIKAR (ORTA BOŞ KALSIN)
         let randomLeft;
         if(Math.random() < 0.5) {
-             randomLeft = Math.random() * 15; 
+             randomLeft = Math.random() * 15; // 0% ile 15% arası (Sol Kenar)
         } else {
-             randomLeft = 85 + Math.random() * 15; 
+             randomLeft = 85 + Math.random() * 15; // 85% ile 100% arası (Sağ Kenar)
         }
         b.style.left = randomLeft + 'vw';
         
