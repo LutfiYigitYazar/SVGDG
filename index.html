@@ -2,8 +2,8 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SÜRPRİZ!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SÜRPRİZ</title>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
@@ -16,12 +16,18 @@
             --text-color: #f1f5f9;   
         }
         
-        body { background-color: var(--bg); color: var(--text-color); font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; position: relative; }
+        body { background-color: var(--bg); color: var(--text-color); font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; position: relative; -webkit-tap-highlight-color: transparent; }
         
-        /* ÖNEMLİ DÜZELTME: Konfeti canvas'ı tıklamayı engellemesin */
+        /* KRİTİK DÜZELTME: Konfeti canvas'ı tıklamayı ASLA engellemesin */
         canvas { pointer-events: none !important; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; }
-        /* Kazı kazan kartının çizilebilir olması lazım, onu hariç tutuyoruz */
-        #scratch-canvas { pointer-events: auto !important; position: absolute; z-index: 5; }
+        
+        /* Kazı kazan kartının çizilebilir olması lazım, onu ÖZEL olarak açıyoruz */
+        #scratch-canvas { 
+            pointer-events: auto !important; 
+            position: absolute !important; 
+            z-index: 60 !important; 
+            top: 0; left: 0; width: 100%; height: 100%;
+        }
 
         /* BALONLAR */
         .balloon-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; z-index: 1; }
@@ -51,33 +57,40 @@
         .foto-cerceve:hover { transform: scale(1.1) rotate(0deg) !important; z-index: 999; box-shadow: 0 0 30px var(--primary); }
         .foto-cerceve img { width: 100%; height: 260px; object-fit: cover; pointer-events: none; border: 1px solid #eee; background: #eee; }
         
-        /* BUTONLAR - MOBİL DÜZELTMESİ (Z-INDEX 99999) */
+        /* BUTONLAR - KESİN ÇÖZÜM İÇİN STİLLER */
         .buton { 
             background: var(--primary); 
             color: white; 
             border: none; 
-            padding: 14px 30px; 
+            padding: 16px 35px; /* Mobilde daha kolay basılsın diye büyüttüm */
             border-radius: 50px; 
             cursor: pointer; 
-            font-weight: 600; 
+            font-weight: 700; 
             font-size: 1.1rem; 
             margin: 10px; 
             transition: 0.3s; 
+            
+            /* EN KRİTİK KISIM: Z-INDEX MAXİMUM */
             position: relative; 
-            z-index: 99999 !important; /* Her şeyin üstünde */
+            z-index: 2147483647 !important; 
+            pointer-events: auto !important;
+            
             box-shadow: 0 4px 15px rgba(217, 70, 239, 0.4); 
-            touch-action: manipulation; /* Dokunmatik iyileştirmesi */
-            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation; 
+            user-select: none;
+            -webkit-tap-highlight-color: rgba(255, 255, 255, 0.2);
         }
+        .buton:active { transform: scale(0.95); }
         .buton:hover { transform: scale(1.05); filter: brightness(1.1); box-shadow: 0 6px 25px rgba(217, 70, 239, 0.6); }
         
         .nav-butonlar { 
             display: flex; 
             justify-content: center; 
             gap: 15px; 
-            padding-bottom: 60px; 
+            padding-bottom: 80px; /* Mobilde alt barın altında kalmasın diye artırıldı */
             position: relative; 
-            z-index: 99999 !important; /* Konteyner de en üstte */
+            z-index: 2147483647 !important; 
+            pointer-events: auto !important;
         }
 
         /* KAZI KAZAN */
@@ -172,9 +185,9 @@
 
 <div id="sayfa-konteynir"></div>
 
-<div id="son-sayfa" style="min-height:100vh; flex-direction: column; justify-content: center; align-items: center; text-align: center; background-color: var(--bg); display:none; padding: 40px; position:relative; z-index:10;">
+<div id="son-sayfa" style="min-height:100dvh; flex-direction: column; justify-content: center; align-items: center; text-align: center; background-color: var(--bg); display:none; padding: 40px 20px 100px 20px; position:relative; z-index:10;">
     <h1 style="color: var(--primary); margin-bottom: 20px; font-family: 'Caveat', cursive; font-size: 3rem;">İyi Ki Doğdun! 🎂</h1>
-    <div style="max-width: 850px; background: var(--card-bg); padding: 50px; border-radius: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.4); line-height: 1.8; color: var(--text-color); z-index: 50; position: relative; border: 1px solid rgba(255,255,255,0.1); font-size: 1.2rem;">
+    <div style="max-width: 850px; background: var(--card-bg); padding: 40px; border-radius: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.4); line-height: 1.8; color: var(--text-color); z-index: 50; position: relative; border: 1px solid rgba(255,255,255,0.1); font-size: 1.1rem; margin-bottom: 30px;">
         <p style="margin-bottom: 20px;">Canım arkadaşım, bugün somut olarak yanında olamıyorum ama en azından o sıcaklığı hissettirecek bir şey yapmak istedim. ✨</p>
         <p style="margin-bottom: 20px;">İyi ki doğmuşsun, iyi ki yollarımız kesişmiş ve iyi ki bu günlere kadar gelmişiz. ❤️</p>
         <p style="margin-bottom: 20px;">Yeni yaşında hayalindeki <strong>montu</strong> bulabilmeni, <strong>istediğin vücuda</strong> daha da yaklaşmanı ve <strong>su dolu varile</strong> girmeni diliyorum ya da sondakini dilemiyorum, istiyorum😁 ve son olarak</p>
@@ -188,10 +201,10 @@
             <div class="dalga" style="animation-delay:1.5s">💗</div>
             <div class="dalga" style="animation-delay:3s">💗</div>
         </div>
-        <div class="nav-butonlar" style="margin-top: 30px;">
-            <button class="buton" style="background:#334155" onclick="sayfaDegistir('son-sayfa', 'sayfa9')">← Geri</button>
-            <button class="buton" onclick="sayfaDegistir('son-sayfa', 'pasta-sayfasi')">Doğum Günü Pastası 🎂</button>
-        </div>
+    </div>
+    <div class="nav-butonlar">
+        <button class="buton" style="background:#334155" onclick="sayfaDegistir('son-sayfa', 'sayfa9')">← Geri</button>
+        <button class="buton" onclick="sayfaDegistir('son-sayfa', 'pasta-sayfasi')">Doğum Günü Pastası 🎂</button>
     </div>
 </div>
 
@@ -244,7 +257,7 @@
     const gizliHediyeSifresiAlt = "HEDIYE"; 
 
     // YENİ ANAHTAR: Sıfır başlangıç için
-    const STORAGE_KEY = "dogum_gunu_surprizi_final_v6";
+    const STORAGE_KEY = "dogum_gunu_surprizi_final_v7";
     
     const hediyeler = ["🍫 En sevdiğin çikolata", "☕ Kahve Ismarlama", "🎁 Garip bir hediye"];
 
@@ -480,12 +493,11 @@
         const b = document.createElement('div'); b.className = 'balloon';
         b.style.backgroundColor = ['#d946ef', '#8b5cf6', '#3b82f6', '#f472b6'][Math.floor(Math.random()*4)];
         
-        // BALONLARI SADECE SAĞ VE SOL KENARLARDAN ÇIKAR (ORTA BOŞ KALSIN)
         let randomLeft;
         if(Math.random() < 0.5) {
-             randomLeft = Math.random() * 15; // 0% ile 15% arası (Sol Kenar)
+             randomLeft = Math.random() * 15; 
         } else {
-             randomLeft = 85 + Math.random() * 15; // 85% ile 100% arası (Sağ Kenar)
+             randomLeft = 85 + Math.random() * 15; 
         }
         b.style.left = randomLeft + 'vw';
         
