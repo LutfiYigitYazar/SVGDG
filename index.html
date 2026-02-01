@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SÜRPRİZ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        /* --- MOR & LACİVERT TEMA (MIDNIGHT GALAXY) --- */
+        :root { 
+            --primary: #d946ef;      /* Canlı Fuşya/Mor Vurgu */
+            --bg: #0f172a;           /* Derin Lacivert Arka Plan */
+            --dark-bg: #020617;      /* Daha Koyu Lacivert (Galeri Arkası) */
+            --card-bg: #1e293b;      /* Kart/Kutu Arka Planı */
+            --text-color: #f1f5f9;   /* Açık Gri/Beyaz Yazı */
+        }
+        
+        body { background-color: var(--bg); color: var(--text-color); font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; position: relative; }
+        
+        /* BALONLAR */
+        .balloon-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; z-index: 1; }
+        .balloon { position: absolute; bottom: -100px; width: 60px; height: 80px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; opacity: 0.8; animation: floatUp 12s ease-in-out infinite; box-shadow: inset -5px -5px 10px rgba(0,0,0,0.1); transition: transform 0.1s; pointer-events: auto; }
+        .balloon::before { content: ''; position: absolute; top: 80%; left: 50%; transform: translateX(-50%); width: 2px; height: 30px; background-color: rgba(255,255,255,0.3); opacity: 0.8; z-index: -1; }
+        @keyframes floatUp { 0% { transform: translateY(0) rotateZ(0deg); opacity: 0.9; } 50% { transform: translateY(-60vh) rotateZ(10deg); } 100% { transform: translateY(-110vh) rotateZ(-10deg); opacity: 0; } }
+
+        /* MÜZİK PANELİ */
+        .music-container { position: fixed; top: 20px; right: 20px; width: 260px; z-index: 4000; font-family: 'Segoe UI', sans-serif; user-select: none; }
+        .music-header { background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(12px); padding: 12px 18px; border-radius: 20px; color: white; display: flex; justify-content: space-between; align-items: center; cursor: pointer; box-shadow: 0 8px 25px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s ease; }
+        .music-header:hover { background: rgba(51, 65, 85, 0.95); transform: translateY(-2px); border-color: var(--primary); }
+        .music-dropdown { list-style: none; padding: 5px; margin: 10px 0 0 0; background: rgba(30, 41, 59, 0.98); backdrop-filter: blur(15px); border-radius: 15px; overflow: hidden; max-height: 0; transition: max-height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s; opacity: 0; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); }
+        .music-dropdown.open { max-height: 300px; opacity: 1; }
+        .music-item { padding: 12px 15px; color: #cbd5e1; cursor: pointer; border-radius: 10px; font-size: 0.85rem; display: flex; align-items: center; gap: 10px; transition: 0.2s; margin-bottom: 2px; }
+        .music-item:hover { background: rgba(255, 255, 255, 0.1); color: white; padding-left: 20px; }
+        .music-item.active { background: rgba(217, 70, 239, 0.2); color: var(--primary); font-weight: bold; }
+        .music-icon-anim { animation: rotateMusic 4s linear infinite; display: inline-block; }
+        .music-arrow { transition: 0.3s; font-size: 0.8rem; }
+        .music-header.active .music-arrow { transform: rotate(180deg); }
+        @keyframes rotateMusic { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* GALERİ */
+        .foto-sayfasi { display: none; padding: 40px 20px; min-height: 100vh; background-color: var(--dark-bg); animation: fadeIn 0.8s ease; position: relative; z-index: 10; }
+        .izgara { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 20px; margin: 0 auto 50px auto; max-width: 1200px; padding-top: 30px; position: relative; z-index: 10; }
+        
+        .foto-cerceve { background: white; padding: 12px; border-radius: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); cursor: pointer; text-align: center; width: 260px; position: relative; transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 20; }
+        .foto-cerceve:hover { transform: scale(1.1) rotate(0deg) !important; z-index: 999; box-shadow: 0 0 30px var(--primary); }
+        .foto-cerceve img { width: 100%; height: 260px; object-fit: cover; pointer-events: none; border: 1px solid #eee; background: #eee; }
+        
+        /* BUTONLAR */
+        .buton { background: var(--primary); color: white; border: none; padding: 14px 30px; border-radius: 50px; cursor: pointer; font-weight: 600; font-size: 1.1rem; margin: 10px; transition: 0.3s; position: relative; z-index: 30; box-shadow: 0 4px 15px rgba(217, 70, 239, 0.4); }
+        .buton:hover { transform: scale(1.05); filter: brightness(1.1); box-shadow: 0 6px 25px rgba(217, 70, 239, 0.6); }
+        .nav-butonlar { display: flex; justify-content: center; gap: 15px; padding-bottom: 40px; position: relative; z-index: 30; }
+
+        /* KAZI KAZAN */
+        .scratch-box { position: relative; width: 100%; max-width: 400px; height: 90px; margin: 25px auto; overflow: hidden; border-radius: 12px; z-index: 30; box-shadow: 0 5px 15px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); }
+        #scratch-canvas { position: absolute; top: 0; left: 0; z-index: 5; touch-action: none; cursor: crosshair; }
+        .hidden-msg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: var(--card-bg); }
+        
+        /* ATAN KALP EFEKTİ */
+        .kalp-konteynir { position: relative; display: inline-block; margin-top: 20px; pointer-events: none; z-index: 20; }
+        .ana-kalp { font-size: 3.5rem; color: var(--primary); z-index: 100; position: relative; }
+        .dalga { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: rgba(217, 70, 239, 0.5); font-size: 3rem; opacity: 0; animation: devDalga 6s forwards; pointer-events: none; }
+        @keyframes devDalga { 0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; } 100% { transform: translate(-50%, -50%) scale(35); opacity: 0; } }
+
+        /* GERİ SAYIM SAYFASI */
+        #geri-sayim-sayfasi { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white; position: relative; transition: background 1s ease; z-index: 10; }
+        
+        /* --- TEMA GEÇİŞLERİ (MOR & LACİVERT UYUMLU) --- */
+        .tema-sabah { background: linear-gradient(180deg, #1e293b 0%, #334155 100%); }
+        .tema-ogle { background: linear-gradient(180deg, #1e1b4b 0%, #7c3aed 100%); } /* Canlı Mor */
+        .tema-ikindi { background: linear-gradient(180deg, #1e1b4b 0%, #312e81 100%); }
+        .tema-aksam { background: linear-gradient(180deg, #020617 0%, #172554 100%); }
+        .tema-gece { background: linear-gradient(180deg, #020617 0%, #1e1b4b 100%); }
+
+        /* PASTA */
+        .cake { position: relative; width: 250px; height: 200px; margin: 120px auto 50px auto; z-index: 20; }
+        .cake-layer { background: #f472b6; border-radius: 15px 15px 5px 5px; position: absolute; width: 100%; border-bottom: 4px solid #be185d; }
+        .layer-bottom { height: 80px; bottom: 0; width: 250px; left: 0; }
+        .layer-top { height: 60px; bottom: 80px; width: 200px; left: 25px; background: #ec4899; }
+        .icing-drip { position: absolute; top: 0; width: 100%; height: 20px; background: #fce7f3; border-radius: 15px 15px 0 0; }
+        .candle-wrapper { position: absolute; bottom: 140px; width: 40px; height: 90px; cursor: pointer; z-index: 200; display: flex; justify-content: center; align-items: flex-end; }
+        .candle-body { width: 12px; height: 60px; background: #60a5fa; border-radius: 5px; position: relative; }
+        .flame { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 14px; height: 24px; background: #fbbf24; border-radius: 50% 50% 35% 35%; box-shadow: 0 0 15px #f59e0b; animation: flicker 0.15s infinite alternate; }
+        @keyframes flicker { 0% { opacity: 0.8; transform: translateX(-50%) scale(1); } 100% { opacity: 1; transform: translateX(-50%) scale(1.1); } }
+        .smoke { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; background: rgba(200, 200, 200, 0.8); border-radius: 50%; opacity: 0; filter: blur(3px); }
+        .smoke-animate { animation: smokeUp 2s ease-out forwards; }
+        @keyframes smokeUp { 0% { opacity: 0.8; transform: translate(-50%, 0) scale(1); } 100% { opacity: 0; transform: translate(-50%, -80px) scale(4); } }
+
+        /* HEDİYE SİSTEMİ */
+        #hediye-sayfasi { background-color: var(--bg); min-height: 100vh; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; padding: 20px; text-align: center; position: relative; z-index: 10; }
+        .hediye-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 30px; margin: 40px auto; max-width: 800px; width: 90%; z-index: 20; position: relative; }
+        .hediye-kutu { font-size: 6rem; cursor: pointer; transition: 0.3s; user-select: none; text-shadow: 0 0 20px rgba(217, 70, 239, 0.5); }
+        .hediye-kutu:hover { transform: scale(1.1) rotate(5deg); text-shadow: 0 0 40px var(--primary); }
+        .hediye-kutu.acildi { font-size: 1.2rem; background: white; color: #333; border-radius: 15px; padding: 20px; height: 150px; display: flex; align-items: center; justify-content: center; font-family: 'Caveat', cursive; font-weight: bold; box-shadow: 0 0 30px var(--primary); cursor: default; }
+        .hediye-kutu.pasif { opacity: 0.3; pointer-events: none; filter: grayscale(100%); }
+        .hediye-kutu.acildi-pasif { font-size: 1rem; background: #cbd5e1; color: #475569; opacity: 0.9; border-radius: 15px; padding: 20px; height: 150px; display: flex; align-items: center; justify-content: center; font-family: 'Caveat', cursive; font-weight: bold; pointer-events: none; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); filter: none; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* LIGHTBOX */
+        .lightbox-nav { position: absolute; top: 50%; transform: translateY(-50%); color: white; font-size: 4rem; cursor: pointer; padding: 10px 20px; user-select: none; z-index: 3001; transition: 0.3s; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
+        .lightbox-nav:hover { color: var(--primary); transform: translateY(-50%) scale(1.1); }
+        .lightbox-prev { left: 10px; }
+        .lightbox-next { right: 10px; }
+        #buyukFoto { z-index: 3000; position:relative; cursor: zoom-out; }
+    </style>
+</head>
+<body onload="baslangicIslemleri()">
+
+<div id="balloonContainer" class="balloon-container"></div>
+
+<div id="lightbox" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:3000; justify-content:center; align-items:center;" onclick="closeLightbox(event)">
+    <span id="btnPrev" class="lightbox-nav lightbox-prev" onclick="changePhoto(-1)">&#10094;</span>
+    <img id="buyukFoto" src="" onclick="closeLightboxDirectly()" style="max-width:90%; max-height:90%; border: 5px solid white; box-shadow: 0 0 30px rgba(0,0,0,0.5);">
+    <span id="btnNext" class="lightbox-nav lightbox-next" onclick="changePhoto(1)">&#10095;</span>
+</div>
+
+<div class="music-container">
+    <div class="music-header" onclick="toggleMusicMenu()">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <span id="main-icon" class="music-icon-anim">🎵</span>
+            <span id="current-song" style="font-size:0.85rem; font-weight:600;">Sezen Aksu - Yol Arkadaşım</span>
+        </div>
+        <span id="arrow-icon" class="music-arrow">▼</span>
+    </div>
+    <ul id="music-list" class="music-dropdown">
+        <li class="music-item active" onclick="playSong('yol-arkadasim.mp3', 'Sezen Aksu - Yol Arkadaşım', this)">
+            <span>▶</span> Sezen Aksu - Yol Arkadaşım
+        </li>
+        <li class="music-item" onclick="playSong('can-dostum.mp3', 'Emir Can İğrek - Can Dostum', this)">
+            <span>▶</span> Emir Can İğrek - Can Dostum
+        </li>
+    </ul>
+</div>
+
+<audio id="mainAudio" src="yol-arkadasim.mp3" preload="auto" loop></audio>
+
+<audio id="cakeAudio" src="id.m4a" preload="auto"></audio>
+
+<div id="geri-sayim-sayfasi">
+    <div id="sky-element" style="font-size: 5rem; margin-bottom: 15px;"></div>
+    <div style="font-size: 1.8rem; font-weight: bold; letter-spacing: 2px;">Sürpriz yaklaşıyooor</div>
+    <div id="sayaç-alanı" style="font-size: 2rem; margin: 20px 0; font-family: monospace; background: rgba(0,0,0,0.3); padding: 10px 20px; border-radius: 10px;"></div>
+    <button id="baslat-butonu" class="buton" onclick="surpriziBaslat()" style="display:none; font-size: 1.5rem; padding: 15px 40px;">SÜRPRİZİ BAŞLAT ✨</button>
+</div>
+
+<div id="sayfa-konteynir"></div>
+
+<div id="son-sayfa" style="min-height:100vh; flex-direction: column; justify-content: center; align-items: center; text-align: center; background-color: var(--bg); display:none; padding: 40px; position:relative; z-index:10;">
+    <h1 style="color: var(--primary); margin-bottom: 20px; font-family: 'Caveat', cursive; font-size: 3rem;">İyi Ki Doğdun! 🎂</h1>
+    <div style="max-width: 850px; background: var(--card-bg); padding: 50px; border-radius: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.4); line-height: 1.8; color: var(--text-color); z-index: 50; position: relative; border: 1px solid rgba(255,255,255,0.1); font-size: 1.2rem;">
+        <p style="margin-bottom: 20px;">Canım arkadaşım, bugün somut olarak yanında olamıyorum ama en azından o sıcaklığı hissettirecek bir şey yapmak istedim. ✨</p>
+        <p style="margin-bottom: 20px;">İyi ki doğmuşsun, iyi ki yollarımız kesişmiş ve iyi ki bu günlere kadar gelmişiz. ❤️</p>
+        <p style="margin-bottom: 20px;">Yeni yaşında hayalindeki <strong>montu</strong> bulabilmeni, <strong>istediğin vücuda</strong> daha da yaklaşmanı ve <strong>su dolu varile</strong> girmeni diliyorum ya da sondakini dilemiyorum, istiyorum😁 ve son olarak</p>
+        <div class="scratch-box" id="scratchContainer">
+            <div class="hidden-msg" style="background: var(--bg);"><p style="font-weight:bold; color:var(--primary); font-size:1.8rem; font-family: 'Caveat', cursive;">seni çooook seviyorum</p></div>
+            <canvas id="scratch-canvas"></canvas>
+        </div>
+        <div class="kalp-konteynir">
+            <span class="ana-kalp">💗</span>
+            <div class="dalga" style="animation-delay:0s">💗</div>
+            <div class="dalga" style="animation-delay:1.5s">💗</div>
+            <div class="dalga" style="animation-delay:3s">💗</div>
+        </div>
+        <div class="nav-butonlar" style="margin-top: 30px;">
+            <button class="buton" style="background:#334155" onclick="sayfaDegistir('son-sayfa', 'sayfa9')">← Geri</button>
+            <button class="buton" onclick="sayfaDegistir('son-sayfa', 'pasta-sayfasi')">Doğum Günü Pastası 🎂</button>
+        </div>
+    </div>
+</div>
+
+<div id="pasta-sayfasi" style="min-height:100vh; flex-direction: column; justify-content: center; align-items: center; display:none; background: var(--bg); position:relative; z-index:10;">
+    <div id="talimat-mesaji" style="font-family: 'Caveat', cursive; font-size: 2.5rem; color: #94a3b8; margin-bottom: 40px; position:relative; z-index:20;">🎂 Dilek tut ve dokunarak mumları söndür</div>
+    <div id="dilek-mesaji" style="font-family: 'Caveat', cursive; font-size: 4rem; color: var(--primary); opacity: 0; position: absolute; top: 100px; z-index:20;">✨ İYİ Kİ DOĞDUN! ✨</div>
+    <div class="cake">
+        <div class="cake-layer layer-bottom"><div class="icing-drip"></div></div>
+        <div class="cake-layer layer-top"><div class="icing-drip"></div></div>
+        <div class="candle-wrapper" style="left: 40px;" onclick="mumuSondur(this)"><div class="smoke"></div><div class="candle-body" style="background: #60a5fa;"><div class="flame"></div></div></div>
+        <div class="candle-wrapper" style="left: 110px; bottom: 150px;" onclick="mumuSondur(this)"><div class="smoke"></div><div class="candle-body" style="background: #4ade80;"><div class="flame"></div></div></div>
+        <div class="candle-wrapper" style="left: 180px;" onclick="mumuSondur(this)"><div class="smoke"></div><div class="candle-body" style="background: #f472b6;"><div class="flame"></div></div></div>
+    </div>
+    <div class="nav-butonlar" style="margin-top: 80px;">
+        <button class="buton" style="background:#334155" onclick="sayfaDegistir('pasta-sayfasi', 'son-sayfa')">← Geri</button>
+        <button class="buton" onclick="sayfaDegistir('pasta-sayfasi', 'hediye-sayfasi')">Hediyeni Seç 🎁 →</button>
+    </div>
+</div>
+
+<div id="hediye-sayfasi">
+    <h1 style="font-family: 'Caveat', cursive; font-size: 3.5rem; color: var(--primary);">HEDİYENİ SEÇ 🎁</h1>
+    <div class="hediye-grid">
+        <div class="hediye-kutu" onclick="hediyeSec(this, 0)">🎁</div>
+        <div class="hediye-kutu" onclick="hediyeSec(this, 1)">🎁</div>
+        <div class="hediye-kutu" onclick="hediyeSec(this, 2)">🎁</div>
+    </div>
+    
+    <div class="nav-butonlar" style="margin-top: 50px;">
+        <button class="buton" style="background:#334155" onclick="sayfaDegistir('hediye-sayfasi', 'pasta-sayfasi')">← Geri</button>
+        <button class="buton" style="background:var(--primary)" onclick="location.reload()">↻ Başa Dön</button>
+    </div>
+</div>
+
+<script>
+    // TARİH: 1 Şubat 2026, 20:00:00
+    const hedefTarih = new Date("Feb 1, 2026 20:00:00").getTime();
+    const audio = document.getElementById("mainAudio");
+    const cakeAudio = document.getElementById("cakeAudio");
+    let sonenMumlar = 0;
+    let hediyeSecildi = false;
+    let surprizBasladi = false;
+    let pastaMuzigiCalindi = false; 
+    
+    // Cheat Code Değişkenleri
+    let yazilanKod = "";
+    const gizliSifre = "SEVGİ";
+    
+    let yazilanHediyeKodu = "";
+    const gizliHediyeSifresi = "HEDİYE"; 
+    const gizliHediyeSifresiAlt = "HEDIYE"; 
+
+    // YENİ ANAHTAR: Sıfır başlangıç için
+    const STORAGE_KEY = "dogum_gunu_surprizi_final_v5";
+    
+    const hediyeler = ["🍫 En sevdiğin çikolata", "☕ Kahve Ismarlama", "🎁 Garip bir hediye"];
+
+    // PASTA MÜZİĞİ BİTİNCE ANA MÜZİĞİ DEVAM ETTİR
+    if (cakeAudio) {
+        cakeAudio.onended = function() {
+            if (audio) {
+                audio.play().catch(e => console.log("Ana müzik devam edemedi:", e));
+            }
+        };
+    }
+
+    // KLAVYE DİNLEYİCİSİ
+    document.addEventListener("keydown", function(e) {
+        const tus = e.key.toLocaleUpperCase('tr-TR');
+
+        if (!surprizBasladi && document.getElementById("geri-sayim-sayfasi").style.display !== "none") {
+            yazilanKod += tus;
+            if (yazilanKod.length > gizliSifre.length) yazilanKod = yazilanKod.slice(-gizliSifre.length);
+            if (yazilanKod === gizliSifre) surpriziBaslat();
+        }
+
+        const hediyeSayfasi = document.getElementById("hediye-sayfasi");
+        if (hediyeSecildi && window.getComputedStyle(hediyeSayfasi).display !== "none") {
+            yazilanHediyeKodu += tus;
+            if (yazilanHediyeKodu.length > 6) yazilanHediyeKodu = yazilanHediyeKodu.slice(-6);
+            if (yazilanHediyeKodu.endsWith(gizliHediyeSifresi) || yazilanHediyeKodu.endsWith(gizliHediyeSifresiAlt)) {
+                tumHediyeleriGoster();
+                yazilanHediyeKodu = ""; 
+            }
+        }
+    });
+
+    function tumHediyeleriGoster() {
+        const kutular = document.querySelectorAll('.hediye-kutu');
+        let acilanVar = false;
+        kutular.forEach((k, i) => {
+            if (k.classList.contains('pasif')) {
+                k.classList.remove('pasif');
+                k.classList.add('acildi-pasif'); 
+                k.innerHTML = `<span>${hediyeler[i]}</span>`;
+                acilanVar = true;
+            }
+        });
+
+        if(acilanVar) {
+            confetti({ particleCount: 200, spread: 120, origin: { y: 0.7 } });
+            setTimeout(() => {
+                alert("Merak kediyi öldürür ama seni güldürsün :) İşte diğer hediyeler!");
+            }, 100);
+        }
+    }
+
+    function baslangicIslemleri() {
+        generatePages();
+        temaAyarla();
+        zamanKontrol();
+        hediyeDurumunuKontrolEt(); 
+    }
+
+    function toggleMusicMenu() {
+        document.getElementById('music-list').classList.toggle('open');
+        document.querySelector('.music-header').classList.toggle('active');
+    }
+
+    function playSong(src, title, el) {
+        if (audio.getAttribute('src') === src) {
+            if (audio.paused) { audio.play(); document.getElementById('main-icon').style.animationPlayState = 'running'; }
+            else { audio.pause(); document.getElementById('main-icon').style.animationPlayState = 'paused'; }
+        } else {
+            audio.src = src; audio.play(); document.getElementById('current-song').innerText = title;
+            document.getElementById('main-icon').style.animationPlayState = 'running';
+            document.querySelectorAll('.music-item').forEach(item => item.classList.remove('active'));
+            el.classList.add('active');
+        }
+    }
+
+    function generatePages() {
+        const container = document.getElementById('sayfa-konteynir');
+        let html = "";
+        let currentPhotoStart = 1;
+        const pageConfigs = [
+            { title: "Hem Çalışma Arkadaşım", count: 5 }, { title: "Aynı Zamanda Yan Komşum", count: 10 },
+            { title: "Gymbuddy'im", count: 7 }, { title: "Cumhuriyet Kadını", count: 4 },
+            { title: "Bazen Kadeh Arkadaşı", count: 12 }, { title: "Çoğu Zamanda Bir Abla Figürü", count: 6 },
+            { title: "Ve Senin İçin Tanımlanabilecek Birçok Şey", count: 14 }, { title: "Ama Benim İçin En Güzel Tanım 'Yol Arkadaşım'", count: 14 },
+            { title: "Bunlar İçin Ayrı Bir Bölüm Yapmazsam Olmazdı. Hiçbir Şey Demiyorum ... Ne de olsa bazen hiçbir şey demeden de çok şey anlatılabilir.", count: 6 }
+        ];
+        for(let j=1; j<=9; j++) {
+            const config = pageConfigs[j-1];
+            let start = currentPhotoStart; let end = start + config.count - 1; currentPhotoStart = end + 1;
+            let next = (j===9) ? 'son-sayfa' : `sayfa${j+1}`;
+            let imgs = "";
+            for(let i=start; i<=end; i++) {
+                let rot = Math.floor(Math.random() * 20) - 10;
+                // NOT KISMI SİLİNDİ, FOTOĞRAF KORUNDU
+                imgs += `<div class="foto-cerceve" style="transform: rotate(${rot}deg)" onclick="fotoBuyut(this)"><img src="${i}.jpg"></div>`;
+            }
+            html += `<div id="sayfa${j}" class="foto-sayfasi"><h2 style="text-align:center; color:#eee; font-family:Caveat; font-size: 2.2rem;">${config.title}</h2><div class="izgara">${imgs}</div><div class="nav-butonlar"><button class="buton" style="background:#334155" onclick="sayfaDegistir('sayfa${j}', '${j==1?'geri-sayim-sayfasi':'sayfa'+(j-1)}')">← Geri</button><button class="buton" onclick="sayfaDegistir('sayfa${j}', '${next}')">${j==9?'Son Söz ❤️':'Devam Et →'}</button></div></div>`;
+        }
+        container.innerHTML = html;
+    }
+
+    function surpriziBaslat() {
+        if(surprizBasladi) return; surprizBasladi = true;
+        audio.play().catch(e => {}); confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+        document.getElementById("geri-sayim-sayfasi").style.display = "none";
+        document.getElementById("sayfa1").style.display = "block";
+    }
+
+    function sayfaDegistir(cur, nxt) {
+        document.querySelectorAll('.foto-sayfasi, #son-sayfa, #pasta-sayfasi, #geri-sayim-sayfasi, #hediye-sayfasi').forEach(s => s.style.display = "none");
+        const nextEl = document.getElementById(nxt);
+        if (nextEl) {
+            nextEl.style.display = (['son-sayfa', 'pasta-sayfasi', 'hediye-sayfasi'].includes(nxt)) ? "flex" : "block";
+            if(nxt === 'son-sayfa') setTimeout(initScratch, 300);
+        }
+
+        // PASTA SAYFASI MÜZİK MANTIĞI (BİR KERE ÇALAR)
+        if (nxt === 'pasta-sayfasi') {
+            const cakeSound = document.getElementById('cakeAudio');
+            const mainSound = document.getElementById('mainAudio');
+            
+            if(mainSound && !mainSound.paused) {
+                mainSound.pause();
+            }
+            // Sadece daha önce çalmadıysa çal
+            if(cakeSound && !pastaMuzigiCalindi) {
+                cakeSound.currentTime = 0;
+                cakeSound.play().catch(e => console.log("Otomatik oynatma engellendi:", e));
+                pastaMuzigiCalindi = true; // Bayrağı kaldır, bir daha çalmasın
+            }
+        }
+
+        window.scrollTo(0,0);
+    }
+
+    function mumuSondur(el) {
+        const alev = el.querySelector('.flame');
+        if (alev && alev.style.display !== 'none') {
+            alev.style.display = 'none'; el.querySelector('.smoke').classList.add('smoke-animate'); sonenMumlar++;
+            if (sonenMumlar === 3) { document.getElementById('dilek-mesaji').style.opacity = '1'; confetti({ particleCount: 200, spread: 100 }); }
+        }
+    }
+
+    function initScratch() {
+        const cvs = document.getElementById('scratch-canvas'); const box = document.getElementById('scratchContainer'); if(!cvs) return;
+        cvs.width = box.offsetWidth; cvs.height = box.offsetHeight;
+        const ctx = cvs.getContext('2d'); ctx.fillStyle = '#C0C0C0'; ctx.fillRect(0,0,cvs.width,cvs.height);
+        ctx.font = 'bold 16px Arial'; ctx.fillStyle = '#666'; ctx.textAlign = 'center'; ctx.fillText('KAZI VE GÖR ✨', cvs.width/2, cvs.height/2 + 5);
+        let drawing = false;
+        const scratch = (e) => {
+            if(!drawing) return; const r = cvs.getBoundingClientRect(); const t = e.touches ? e.touches[0] : e;
+            ctx.globalCompositeOperation = 'destination-out'; ctx.beginPath(); ctx.arc(t.clientX-r.left, t.clientY-r.top, 25, 0, Math.PI*2); ctx.fill();
+        };
+        cvs.onmousedown = cvs.ontouchstart = () => drawing = true; window.onmouseup = window.ontouchend = () => drawing = false; cvs.onmousemove = cvs.ontouchmove = scratch;
+    }
+
+    // Hediye Seçme Fonksiyonu
+    function hediyeSec(el, index) {
+        if(hediyeSecildi) return;
+        hediyeSecildi = true;
+        
+        // Seçimi Kaydet
+        localStorage.setItem(STORAGE_KEY, index);
+
+        gorselGuncelle(index);
+        confetti({ particleCount: 150, spread: 100 });
+    }
+
+    function hediyeDurumunuKontrolEt() {
+        const savedIndex = localStorage.getItem(STORAGE_KEY);
+        if(savedIndex !== null) {
+            hediyeSecildi = true;
+            setTimeout(() => {
+                gorselGuncelle(parseInt(savedIndex));
+            }, 100);
+        }
+    }
+
+    function gorselGuncelle(index) {
+        const kutular = document.querySelectorAll('.hediye-kutu');
+        kutular.forEach((k, i) => {
+            if(i === index) {
+                k.innerHTML = `<span>${hediyeler[index]}</span>`;
+                k.classList.add('acildi');
+            } else {
+                k.classList.add('pasif');
+            }
+        });
+    }
+
+    // Galeri Fonksiyonları
+    let currentGalleryPhotos = []; let currentPhotoIndex = 0;
+    function fotoBuyut(el) {
+        const imagesInPage = el.closest('.foto-sayfasi').querySelectorAll('.foto-cerceve img');
+        currentGalleryPhotos = Array.from(imagesInPage).map(img => img.src);
+        currentPhotoIndex = currentGalleryPhotos.indexOf(el.querySelector('img').src);
+        updateLightboxImage(); updateArrowState(); document.getElementById("lightbox").style.display = "flex";
+    }
+    function changePhoto(direction) {
+        event.stopPropagation(); const nextIndex = currentPhotoIndex + direction;
+        if (nextIndex >= 0 && nextIndex < currentGalleryPhotos.length) { currentPhotoIndex = nextIndex; updateLightboxImage(); updateArrowState(); }
+    }
+    function updateArrowState() {
+        document.getElementById("btnPrev").style.display = (currentPhotoIndex === 0) ? "none" : "block";
+        document.getElementById("btnNext").style.display = (currentPhotoIndex === currentGalleryPhotos.length - 1) ? "none" : "block";
+    }
+    function updateLightboxImage() { document.getElementById("buyukFoto").src = currentGalleryPhotos[currentPhotoIndex]; }
+    function closeLightbox(e) { if(e.target.id === 'lightbox') document.getElementById('lightbox').style.display = 'none'; }
+    function closeLightboxDirectly() { document.getElementById('lightbox').style.display = 'none'; }
+
+    function temaAyarla() {
+        const h = new Date().getHours(); const bg = document.getElementById('geri-sayim-sayfasi'); const sky = document.getElementById('sky-element');
+        bg.className = '';
+        if (h >= 6 && h < 11) { bg.classList.add('tema-sabah'); sky.innerHTML = '🌅'; }
+        else if (h >= 11 && h < 15) { bg.classList.add('tema-ogle'); sky.innerHTML = '☀️'; }
+        else if (h >= 15 && h < 19) { bg.classList.add('tema-ikindi'); sky.innerHTML = '🌇'; }
+        else if (h >= 19 && h < 23) { bg.classList.add('tema-aksam'); sky.innerHTML = '🌙'; }
+        else { bg.classList.add('tema-gece'); sky.innerHTML = '✨'; }
+    }
+
+    function zamanKontrol() { setInterval(() => {
+        const fark = hedefTarih - new Date().getTime();
+        if (fark <= 0) { document.getElementById("baslat-butonu").style.display = "inline-block"; document.getElementById("sayaç-alanı").style.display = "none"; }
+        else {
+            const g = Math.floor(fark/864e5), s = Math.floor((fark%864e5)/36e5), d = Math.floor((fark%36e5)/6e4), sn = Math.floor((fark%6e4)/1e3);
+            document.getElementById("sayaç-alanı").innerHTML = `${g}g ${s}s ${d}d ${sn}s`;
+        }
+    }, 1000); }
+
+    setInterval(() => {
+        const b = document.createElement('div'); b.className = 'balloon';
+        b.style.backgroundColor = ['#d946ef', '#8b5cf6', '#3b82f6', '#f472b6'][Math.floor(Math.random()*4)];
+        
+        let randomLeft;
+        if(Math.random() < 0.5) {
+             randomLeft = Math.random() * 15; 
+        } else {
+             randomLeft = 85 + Math.random() * 15; 
+        }
+        b.style.left = randomLeft + 'vw';
+        
+        document.getElementById('balloonContainer').appendChild(b);
+        setTimeout(() => b.remove(), 12000); 
+    }, 2000); 
+</script>
+
+</body>
+</html>,
