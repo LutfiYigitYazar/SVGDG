@@ -9,11 +9,11 @@
     <style>
         /* --- MOR & LACİVERT TEMA (MIDNIGHT GALAXY) --- */
         :root { 
-            --primary: #d946ef;      /* Canlı Fuşya/Mor Vurgu */
-            --bg: #0f172a;           /* Derin Lacivert Arka Plan */
-            --dark-bg: #020617;      /* Daha Koyu Lacivert (Galeri Arkası) */
-            --card-bg: #1e293b;      /* Kart/Kutu Arka Planı */
-            --text-color: #f1f5f9;   /* Açık Gri/Beyaz Yazı */
+            --primary: #d946ef;      
+            --bg: #0f172a;           
+            --dark-bg: #020617;      
+            --card-bg: #1e293b;      
+            --text-color: #f1f5f9;   
         }
         
         body { background-color: var(--bg); color: var(--text-color); font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; position: relative; }
@@ -46,17 +46,39 @@
         .foto-cerceve:hover { transform: scale(1.1) rotate(0deg) !important; z-index: 999; box-shadow: 0 0 30px var(--primary); }
         .foto-cerceve img { width: 100%; height: 260px; object-fit: cover; pointer-events: none; border: 1px solid #eee; background: #eee; }
         
-        /* BUTONLAR */
-        .buton { background: var(--primary); color: white; border: none; padding: 14px 30px; border-radius: 50px; cursor: pointer; font-weight: 600; font-size: 1.1rem; margin: 10px; transition: 0.3s; position: relative; z-index: 30; box-shadow: 0 4px 15px rgba(217, 70, 239, 0.4); }
+        /* BUTONLAR - MOBİL DÜZELTMESİ (Z-INDEX ARTIRILDI) */
+        .buton { 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 14px 30px; 
+            border-radius: 50px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            font-size: 1.1rem; 
+            margin: 10px; 
+            transition: 0.3s; 
+            position: relative; 
+            z-index: 2000 !important; /* En üste taşındı */
+            box-shadow: 0 4px 15px rgba(217, 70, 239, 0.4); 
+            touch-action: manipulation; /* Mobil dokunma iyileştirmesi */
+        }
         .buton:hover { transform: scale(1.05); filter: brightness(1.1); box-shadow: 0 6px 25px rgba(217, 70, 239, 0.6); }
-        .nav-butonlar { display: flex; justify-content: center; gap: 15px; padding-bottom: 40px; position: relative; z-index: 30; }
+        .nav-butonlar { 
+            display: flex; 
+            justify-content: center; 
+            gap: 15px; 
+            padding-bottom: 60px; /* Alt boşluk artırıldı */
+            position: relative; 
+            z-index: 2000 !important; 
+        }
 
         /* KAZI KAZAN */
         .scratch-box { position: relative; width: 100%; max-width: 400px; height: 90px; margin: 25px auto; overflow: hidden; border-radius: 12px; z-index: 30; box-shadow: 0 5px 15px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); }
         #scratch-canvas { position: absolute; top: 0; left: 0; z-index: 5; touch-action: none; cursor: crosshair; }
         .hidden-msg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: var(--card-bg); }
         
-        /* ATAN KALP EFEKTİ */
+        /* ATAN KALP EFEKTİ (Pointer Events Kapatıldı) */
         .kalp-konteynir { position: relative; display: inline-block; margin-top: 20px; pointer-events: none; z-index: 20; }
         .ana-kalp { font-size: 3.5rem; color: var(--primary); z-index: 100; position: relative; }
         .dalga { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: rgba(217, 70, 239, 0.5); font-size: 3rem; opacity: 0; animation: devDalga 6s forwards; pointer-events: none; }
@@ -64,10 +86,8 @@
 
         /* GERİ SAYIM SAYFASI */
         #geri-sayim-sayfasi { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white; position: relative; transition: background 1s ease; z-index: 10; }
-        
-        /* --- TEMA GEÇİŞLERİ (MOR & LACİVERT UYUMLU) --- */
         .tema-sabah { background: linear-gradient(180deg, #1e293b 0%, #334155 100%); }
-        .tema-ogle { background: linear-gradient(180deg, #1e1b4b 0%, #7c3aed 100%); } /* Canlı Mor */
+        .tema-ogle { background: linear-gradient(180deg, #1e1b4b 0%, #7c3aed 100%); } 
         .tema-ikindi { background: linear-gradient(180deg, #1e1b4b 0%, #312e81 100%); }
         .tema-aksam { background: linear-gradient(180deg, #020617 0%, #172554 100%); }
         .tema-gece { background: linear-gradient(180deg, #020617 0%, #1e1b4b 100%); }
@@ -93,7 +113,7 @@
         .hediye-kutu:hover { transform: scale(1.1) rotate(5deg); text-shadow: 0 0 40px var(--primary); }
         .hediye-kutu.acildi { font-size: 1.2rem; background: white; color: #333; border-radius: 15px; padding: 20px; height: 150px; display: flex; align-items: center; justify-content: center; font-family: 'Caveat', cursive; font-weight: bold; box-shadow: 0 0 30px var(--primary); cursor: default; }
         .hediye-kutu.pasif { opacity: 0.3; pointer-events: none; filter: grayscale(100%); }
-        .hediye-kutu.acildi-pasif { font-size: 1rem; background: #cbd5e1; color: #475569; opacity: 0.9; border-radius: 15px; padding: 20px; height: 150px; display: flex; align-items: center; justify-content: center; font-family: 'Caveat', cursive; font-weight: bold; pointer-events: none; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); filter: none; }
+        .hediye-kutu.acildi-pasif { font-size: 1rem; background: #eee; color: #555; opacity: 0.9; border-radius: 15px; padding: 20px; height: 150px; display: flex; align-items: center; justify-content: center; font-family: 'Caveat', cursive; font-weight: bold; pointer-events: none; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); filter: none; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
@@ -153,7 +173,7 @@
         <p style="margin-bottom: 20px;">İyi ki doğmuşsun, iyi ki yollarımız kesişmiş ve iyi ki bu günlere kadar gelmişiz. ❤️</p>
         <p style="margin-bottom: 20px;">Yeni yaşında hayalindeki <strong>montu</strong> bulabilmeni, <strong>istediğin vücuda</strong> daha da yaklaşmanı ve <strong>su dolu varile</strong> girmeni diliyorum ya da sondakini dilemiyorum, istiyorum😁 ve son olarak</p>
         <div class="scratch-box" id="scratchContainer">
-            <div class="hidden-msg" style="background: var(--bg);"><p style="font-weight:bold; color:var(--primary); font-size:1.8rem; font-family: 'Caveat', cursive;">seni çooook seviyorum</p></div>
+            <div class="hidden-msg" style="background: #0f172a;"><p style="font-weight:bold; color:var(--primary); font-size:1.8rem; font-family: 'Caveat', cursive;">seni çooook seviyorum</p></div>
             <canvas id="scratch-canvas"></canvas>
         </div>
         <div class="kalp-konteynir">
@@ -218,7 +238,7 @@
     const gizliHediyeSifresiAlt = "HEDIYE"; 
 
     // YENİ ANAHTAR: Sıfır başlangıç için
-    const STORAGE_KEY = "dogum_gunu_surprizi_final_v5";
+    const STORAGE_KEY = "dogum_gunu_surprizi_final_v6";
     
     const hediyeler = ["🍫 En sevdiğin çikolata", "☕ Kahve Ismarlama", "🎁 Garip bir hediye"];
 
@@ -468,4 +488,4 @@
 </script>
 
 </body>
-</html>,
+</html>
